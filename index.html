@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
+<title>MG인재개발원 강의실 안내</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+:root{
+  --primary:#3182F6; --primary-strong:#1B64DA; --primary-weak:#E8F3FF;
+  --success:#03B26C; --success-weak:#E8F7F0;
+  --warning:#F97316; --warning-weak:#FFF4EC;
+  --danger:#F04452; --danger-weak:#FEECEF;
+  --text:#191F28; --text-2:#4E5968; --text-3:#8B95A1;
+  --bg:#F9FAFB; --bg-subtle:#F2F4F6; --surface:#FFFFFF; --line:#E5E8EB;
+  --shadow:0 8px 24px rgba(15,23,42,.06); --shadow-strong:0 16px 40px rgba(15,23,42,.10);
+  --radius-xl:28px; --radius-lg:24px; --radius-md:18px; --radius-sm:14px;
+  --g-desc:17px; --g-title:22px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg)}
+body{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;color:var(--text);max-width:480px;margin:0 auto;min-height:100vh;letter-spacing:-.02em;overflow-x:hidden}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.screen{display:none;min-height:100vh;background:radial-gradient(circle at top right, rgba(49,130,246,.08), transparent 30%), var(--bg)}
+.screen.active{display:flex;flex-direction:column}
+.hdr{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;padding:14px 16px;background:rgba(255,255,255,.92);backdrop-filter:blur(18px);border-bottom:1px solid var(--line);box-shadow:0 2px 12px rgba(15,23,42,.03)}
+.hdr h1{font-size:17px;font-weight:900;flex:1}
+.bk{background:var(--bg-subtle);border:1px solid var(--line);color:var(--text-2);padding:8px 12px;border-radius:999px;font-size:13px;font-weight:900}
+.cnt{flex:1;padding:22px 20px 30px;overflow:auto}
+.stit{font-size:31px;line-height:1.18;font-weight:900;margin-bottom:10px;letter-spacing:-.04em}
+.ssub{font-size:15px;line-height:1.6;color:var(--text-3);margin-bottom:22px}
+.card,.asec,.box,.login-box,.guide-card,.arrbox,.status-chip,.modal-card,.hero-note{background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}
+.card,.asec,.box,.login-box,.guide-card,.arrbox,.modal-card{border-radius:var(--radius-md)}
+.btn{border:none;border-radius:16px;padding:15px 16px;font-size:16px;font-weight:900}
+.btn-pri{background:var(--primary);color:#fff;box-shadow:0 10px 20px rgba(49,130,246,.22)}
+.btn-sec{background:#fff;color:var(--text);border:1px solid var(--line)}
+.btn-dan{background:var(--danger);color:#fff}
+.btn-ok{background:var(--success);color:#fff}
+.btn-ghost{background:var(--primary-weak);color:var(--primary);border:1px solid #cfe0ff}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hero{padding:62px 28px 28px;min-height:100vh;display:flex;flex-direction:column;justify-content:center;background:radial-gradient(circle at top right, rgba(49,130,246,.14), transparent 28%), linear-gradient(180deg,#FCFDFE 0%, #F9FAFB 42%, #F3F6FB 100%)}
+.hero-badge{display:inline-flex;align-items:center;gap:10px;padding:14px 20px;border-radius:999px;background:rgba(232,243,255,.92);border:1px solid rgba(127,177,255,.35);color:#225fd0;font-size:28px;font-weight:900;line-height:1.15;margin-bottom:18px;box-shadow:0 8px 22px rgba(49,130,246,.12)}
+.hero h2{font-size:40px;line-height:1.08;font-weight:900;letter-spacing:-.05em;margin-bottom:14px}
+.hero p{font-size:18px;line-height:1.62;color:var(--text-2);margin-bottom:18px}
+.hero-note{padding:14px 16px;border-radius:18px;margin:14px 0 22px;font-size:14px;line-height:1.65;color:var(--text-2)}
+.hero-actions{display:grid;gap:10px}
+.label{font-size:14px;font-weight:900;color:var(--text-2);margin-bottom:8px}
+.input,.textarea{width:100%;padding:18px;border:1.5px solid var(--line);border-radius:20px;background:#fff;font-size:17px;color:var(--text);box-shadow:var(--shadow)}
+.input:focus,.textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 4px rgba(49,130,246,.12)}
+.login-box{padding:18px;margin-top:10px}
+.login-box .field{margin-bottom:14px}
+.muted{font-size:13px;color:var(--text-3);line-height:1.65}
+.kv{display:grid;gap:12px}
+.kv-item{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
+.kv-label{font-size:13px;color:var(--text-3);font-weight:900;margin-bottom:6px}
+.kv-value{font-size:20px;font-weight:900;line-height:1.38;word-break:keep-all;white-space:normal}
+.kv-value.room{font-size:24px;line-height:1.34}
+.status-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.status-chip{padding:14px 15px;border-radius:18px}
+.status-chip .t{font-size:12px;color:var(--text-3);font-weight:900;margin-bottom:6px}
+.status-chip .v{font-size:16px;font-weight:900;line-height:1.4}
+.status-on{background:var(--success-weak);border-color:#cceedd}
+.status-off{background:var(--bg-subtle)}
+.section-title{font-size:18px;font-weight:900;margin:18px 0 10px}
+.transport-card{display:flex;flex-direction:column;justify-content:space-between;min-height:210px;padding:20px 16px;border-radius:26px;border:1px solid var(--line);background:linear-gradient(180deg,#fff 0%, #f9fbff 100%);box-shadow:var(--shadow)}
+.transport-card .icon{width:64px;height:64px;border-radius:20px;background:linear-gradient(180deg,#f3f8ff 0%, #e8f1ff 100%);display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:14px}
+.transport-card.bus .icon{background:linear-gradient(180deg,#f5f7ff 0%, #ebefff 100%)}
+.transport-card .name{font-size:22px;font-weight:900;margin-bottom:6px}
+.transport-card .desc{font-size:14px;line-height:1.55;color:var(--text-2)}
+.guide-top{background:#fff;border:1px solid var(--line);border-radius:24px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+.guide-destination{background:linear-gradient(180deg,#fff 0%, #fafdff 100%);border:1px solid #dce9ff;border-radius:18px;padding:14px 16px;font-size:16px;font-weight:900;color:var(--text);margin-bottom:14px}
+.guide-destination span{display:block;font-size:13px;color:var(--text-3);margin-bottom:4px}
+.guide-img-wrap{position:relative;border-radius:24px;overflow:hidden;aspect-ratio:4/3;background:var(--bg-subtle);border:1px solid var(--line);box-shadow:var(--shadow);margin-bottom:14px}
+.guide-img-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+.sbadge,.tbadge{position:absolute;top:14px;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:900;backdrop-filter:blur(8px)}
+.sbadge{left:14px;background:rgba(25,31,40,.72);color:#fff}.tbadge{right:14px;background:rgba(232,243,255,.92);color:var(--primary);border:1px solid rgba(49,130,246,.14)}
+.dots{display:flex;justify-content:center;gap:6px;margin-bottom:14px;flex-wrap:wrap}.dot{width:8px;height:8px;border-radius:999px;background:#D4DCE3}.dot.on{background:var(--primary);width:24px}
+.guide-card{padding:20px 18px 22px;margin-bottom:14px}
+.guide-card h3{font-size:var(--g-title);line-height:1.28;font-weight:900;margin-bottom:10px}.guide-card p{font-size:var(--g-desc);line-height:1.75;color:var(--text-2)}
+.navbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.arrbox{padding:34px 24px;text-align:center;background:linear-gradient(180deg,#ffffff 0%, #f6faff 100%);border:1px solid #dce8ff}
+.arrbox .icon{font-size:52px;color:var(--primary);margin-bottom:14px}.arrbox h2{font-size:28px;font-weight:900;line-height:1.2;margin-bottom:10px}.arrbox p{font-size:16px;line-height:1.7;color:var(--text-2)}
+.overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.44);backdrop-filter:blur(10px);z-index:300;align-items:flex-end;justify-content:center}.overlay.show{display:flex}
+.modal-card{width:100%;max-width:480px;border-radius:32px 32px 0 0;padding:18px 20px 26px;max-height:92vh;overflow:auto}
+.modal-handle{width:42px;height:5px;background:#DDE3EA;border-radius:999px;margin:0 auto 14px}
+.modal-title{font-size:28px;line-height:1.22;font-weight:900;margin-bottom:10px;letter-spacing:-.04em}
+.modal-text{font-size:16px;line-height:1.72;color:var(--text-2);margin-bottom:18px}
+.asec{padding:18px;margin-bottom:16px}.asec h3{font-size:18px;font-weight:900;margin-bottom:8px}.asec p{font-size:13px;color:var(--text-3);line-height:1.65;margin-bottom:12px}
+.statsrow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}.stat{padding:16px 10px;text-align:center;border-radius:18px;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow)}.stat .n{font-size:25px;font-weight:900}.stat .l{font-size:11px;color:var(--text-3);font-weight:900;margin-top:4px}
+.uarea{border:1.5px dashed #c8d4e0;border-radius:18px;padding:28px 16px;text-align:center;cursor:pointer;transition:all .18s ease;background:linear-gradient(180deg,#fff 0%, #fbfcfe 100%)}
+.uarea:hover{border-color:#b6d0ff;background:#fff}.uarea .uicon{font-size:34px;margin-bottom:8px}.uarea .utxt{font-size:15px;font-weight:900;color:var(--text);margin-bottom:4px}.uarea .usub{font-size:12px;color:var(--text-3)}
+.table-wrap{overflow-x:auto}.atable{width:100%;border-collapse:collapse}.atable th{background:#F5F7FA;color:var(--text-2);font-size:12px;font-weight:900;padding:12px 8px;text-align:left;border-bottom:1px solid var(--line)}.atable td{padding:9px 6px;border-bottom:1px solid var(--line);font-size:12px;vertical-align:middle}
+.atable input[type=text]{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:9px 10px;background:#fff}
+.atable input[type=checkbox]{width:18px;height:18px;accent-color:var(--primary)}
+.small-btn{padding:9px 10px;border-radius:12px;border:1px solid var(--line);background:#fff;font-size:12px;font-weight:900}
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}.photo-slot{aspect-ratio:1;border-radius:14px;overflow:hidden;position:relative;background:var(--bg);border:1.5px dashed #CFD6DE;cursor:pointer}.photo-slot img{width:100%;height:100%;object-fit:cover}.photo-slot .slot-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#98A2AD;font-size:11px;font-weight:800}.photo-slot .slot-num span{font-size:22px;margin-bottom:4px}.photo-slot .del{position:absolute;top:6px;right:6px;border:none;background:rgba(240,68,82,.9);color:#fff;width:22px;height:22px;border-radius:999px;font-size:11px}
+.step-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:12px;margin-bottom:10px;box-shadow:var(--shadow)}.step-row{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px}.step-num{font-size:12px;font-weight:900;color:var(--text-2)}.step-emo{width:56px;text-align:center;border:1px solid var(--line);border-radius:12px;padding:8px 6px;font-size:18px;background:#fff}.step-title,.step-desc{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff}.step-title{font-size:13px;font-weight:800;margin-bottom:8px}.step-desc{font-size:12px;line-height:1.6;min-height:68px;resize:vertical}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:rgba(25,31,40,.96);color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;font-weight:700;z-index:9999;transition:transform .24s ease;pointer-events:none;max-width:90vw;text-align:center;line-height:1.4;box-shadow:0 16px 30px rgba(15,23,42,.24)}.toast.show{transform:translateX(-50%) translateY(0)}
+@media (max-width:380px){.hero h2{font-size:34px}.stit{font-size:28px}.kv-value.room{font-size:22px}.transport-card{min-height:190px}}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<section id="s-home" class="screen active">
+  <div class="hero">
+    <div class="hero-badge">MG인재개발원<br>강의실 안내</div>
+    <h2>내 과정과 강의실을<br>빠르게 확인하세요</h2>
+    <p>사번과 금고코드로 본인 과정을 찾고, 자차·대중교통 길안내와 커넥트 아우어 신청까지 한 번에 진행합니다.</p>
+    <div class="hero-note" id="home-note">운영 데이터가 없으면 먼저 관리자 모드에서 입교자현황 파일을 업로드해 주세요.</div>
+    <div class="hero-actions">
+      <button class="btn btn-pri" onclick="goTo('login')">학습자 로그인</button>
+      <button class="btn btn-sec" onclick="goTo('admin')">관리자 모드</button>
+    </div>
+  </div>
+</section>
+
+<section id="s-login" class="screen">
+  <div class="hdr"><button class="bk" onclick="goTo('home')">← 홈</button><h1>학습자 로그인</h1></div>
+  <div class="cnt">
+    <p class="stit">본인 확인</p>
+    <p class="ssub">사번(사원번호)과 금고코드가 일치하면 로그인됩니다. 성명은 참고값이라 오타가 있어도 로그인할 수 있습니다.</p>
+    <div class="login-box">
+      <div class="field"><div class="label">사번(사원번호)</div><input class="input" id="login-emp" placeholder="예: 7210952"></div>
+      <div class="field"><div class="label">금고코드</div><input class="input" id="login-branch" placeholder="예: 0315"></div>
+      <div class="field"><div class="label">성명</div><input class="input" id="login-name" placeholder="예: 홍길동"></div>
+      <button class="btn btn-pri" style="width:100%;margin-top:8px" onclick="loginLearner()">로그인</button>
+      <div class="muted" style="margin-top:14px">기준 파일: 1번째 시트는 종합내역, 2번째 시트부터 과정별 명단으로 읽습니다.</div>
+    </div>
+  </div>
+</section>
+
+<section id="s-dashboard" class="screen">
+  <div class="hdr"><button class="bk" onclick="logoutLearner()">← 로그아웃</button><h1>내 과정 안내</h1></div>
+  <div class="cnt">
+    <p class="stit">배정 정보를 확인해 주세요</p>
+    <p class="ssub">강의실 안내를 보고 난 뒤에도 커넥트 아우어와 귀가 이동 선택은 언제든 신청·철회할 수 있습니다.</p>
+    <div class="kv" id="learner-info"></div>
+    <div class="status-row">
+      <div class="status-chip" id="connect-status-card"></div>
+      <div class="status-chip" id="return-status-card"></div>
+    </div>
+    <div class="section-title">방문 방법 선택</div>
+    <div class="grid2">
+      <button class="transport-card" onclick="openTransport('car')"><div><div class="icon">🚗</div><div class="name">자차</div><div class="desc">주차장에서 시작하는 길안내를 순서대로 확인합니다.</div></div><div class="desc" style="margin-top:16px;font-weight:900;color:var(--text-3)">주차장 기준</div></button>
+      <button class="transport-card bus" onclick="openTransport('bus')"><div><div class="icon">🚌</div><div class="name">대중교통</div><div class="desc">하차 지점부터 이어지는 길안내를 순서대로 확인합니다.</div></div><div class="desc" style="margin-top:16px;font-weight:900;color:var(--text-3)">하차 지점 기준</div></button>
+    </div>
+    <div class="section-title">신청/철회</div>
+    <div class="grid2" style="margin-bottom:10px">
+      <button class="btn btn-sec" onclick="openConnectModal()">커넥트 아우어</button>
+      <button class="btn btn-sec" onclick="openReturnModal()">귀가 이동 선택</button>
+    </div>
+  </div>
+</section>
+
+<section id="s-guide" class="screen">
+  <div class="hdr"><button class="bk" onclick="closeGuide()">← 뒤로</button><h1 id="guide-hdr">이동 경로 안내</h1></div>
+  <div class="cnt">
+    <div class="guide-top" id="guide-top"></div>
+    <div id="guide-body"></div>
+    <div class="navbtns" id="guide-nav"></div>
+  </div>
+</section>
+
+<section id="s-admin" class="screen">
+  <div class="hdr"><button class="bk" onclick="goTo('home')">← 홈</button><h1>관리자 모드</h1></div>
+  <div class="cnt">
+    <div class="statsrow" id="adm-stats"></div>
+
+    <div class="asec">
+      <h3>① 입교자현황 업로드</h3>
+      <p>1번째 시트는 종합 참고용, 2번째 시트부터 과정별 명단으로 읽습니다. 기본 세팅은 자동 적용되지만, 아래 표에서 모두 수동 수정·보완할 수 있습니다.</p>
+      <div class="uarea" onclick="document.getElementById('xlsx-inp').click()">
+        <input id="xlsx-inp" type="file" accept=".xlsx,.xls" style="display:none" onchange="handleWorkbook(this.files[0])">
+        <div class="uicon">📂</div>
+        <div class="utxt" id="upload-name">입교자현황 파일 선택</div>
+        <div class="usub" id="upload-sub">클릭하여 엑셀 파일 업로드</div>
+      </div>
+      <div class="grid2" style="margin-top:12px">
+        <button class="btn btn-sec" onclick="showRules()">업로드 규칙 보기</button>
+        <button class="btn btn-dan" onclick="resetAll()">전체 데이터 초기화</button>
+      </div>
+    </div>
+
+    <div class="asec" id="course-sec" style="display:none">
+      <h3>② 과정별 기본 세팅 / 수동 수정</h3>
+      <p>첫 시트의 과정표를 바탕으로 과정명·입교기간·강의실을 자동 세팅합니다. 이후에는 과정명, 기간, 강의실, 커넥트 아우어 여부를 모두 수동 수정할 수 있습니다.</p>
+      <div class="table-wrap">
+        <table class="atable">
+          <thead><tr><th>과정명</th><th>입교기간</th><th>교육생수</th><th>강의실</th><th>커넥트</th><th></th></tr></thead>
+          <tbody id="course-tbody"></tbody>
+        </table>
+      </div>
+      <button class="btn btn-pri" style="width:100%;margin-top:12px" onclick="saveAppData();toast('기본 세팅을 저장했습니다.')">과정 설정 저장</button>
+    </div>
+
+    <div class="asec">
+      <h3>③ 길안내 사진</h3>
+      <p>이 영역은 이전 최종본과 같은 저장소를 사용합니다. 같은 브라우저라면 기존 자차/대중교통 사진 7장씩을 그대로 불러옵니다.</p>
+      <div class="label">자차 사진</div>
+      <div class="photo-grid" id="car-photo-grid"></div>
+      <input type="file" id="car-photo-inp" accept="image/*" multiple style="display:none" onchange="handlePhotos('car', this.files)">
+      <button class="btn btn-ghost" style="width:100%;margin-bottom:14px" onclick="document.getElementById('car-photo-inp').click()">자차 사진 추가</button>
+      <div class="label">대중교통 사진</div>
+      <div class="photo-grid" id="bus-photo-grid"></div>
+      <input type="file" id="bus-photo-inp" accept="image/*" multiple style="display:none" onchange="handlePhotos('bus', this.files)">
+      <button class="btn btn-ghost" style="width:100%" onclick="document.getElementById('bus-photo-inp').click()">대중교통 사진 추가</button>
+    </div>
+
+    <div class="asec">
+      <h3>④ STEP 설명 편집</h3>
+      <p>이 영역도 이전 최종본 설정값을 그대로 이어받습니다.</p>
+      <div class="label">자차 STEP</div>
+      <div id="car-step-editor"></div>
+      <div class="grid2" style="margin:10px 0 16px">
+        <button class="btn btn-sec" onclick="resetSteps('car')">자차 기본값 복원</button>
+        <button class="btn btn-pri" onclick="saveSteps('car')">자차 STEP 저장</button>
+      </div>
+      <div class="label">대중교통 STEP</div>
+      <div id="bus-step-editor"></div>
+      <div class="grid2" style="margin-top:10px">
+        <button class="btn btn-sec" onclick="resetSteps('bus')">대중교통 기본값 복원</button>
+        <button class="btn btn-pri" onclick="saveSteps('bus')">대중교통 STEP 저장</button>
+      </div>
+    </div>
+
+    <div class="asec">
+      <h3>⑤ 다운로드</h3>
+      <p>관리자가 다운로드하는 순간까지 학습자는 계속 신청·철회할 수 있습니다. 다운로드는 그 시점의 최신 상태를 반영합니다.</p>
+      <div class="grid2">
+        <button class="btn btn-sec" onclick="downloadResponses('connect')">커넥트 아우어 엑셀</button>
+        <button class="btn btn-sec" onclick="downloadResponses('return')">귀가 이동 엑셀</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal-card" id="modal-card"></div>
+</div>
+
+<script>
+const APP_KEY = 'mg_portal_final_v1';
+const OLD_LS_STEP_CFG = 'mg_v4_step_cfg';
+const PHOTO_DB = 'mg_photos';
+const PHOTO_DB_VER = 1;
+const STEP_MAX = 10;
+let photoDb = null;
+
+const DEFAULT_CAR_DESC = [
+  {emoji:'🚗',title:'주차장에서 하차',desc:'오른쪽 원형 식당쪽으로 이동합니다.',bg1:'#3182F6',bg2:'#1B64DA'},
+  {emoji:'🚶',title:'원형 식당쪽 이동',desc:'원형 유리 식당쪽으로 이동합니다.',bg1:'#5B8DEF',bg2:'#3C74E8'},
+  {emoji:'🚶',title:'에스컬레이터',desc:'건물 사이의 에스컬레이터를 타고 올라갑니다.',bg1:'#4E5968',bg2:'#3A4756'},
+  {emoji:'🚶',title:'중앙정원',desc:'중앙정원에서 계속 직진하여 정면의 부채꼴 유리 건물 [연수관]으로 진입합니다.',bg1:'#5368FF',bg2:'#4054D8'},
+  {emoji:'🚶',title:'건물로 진입',desc:'1층 안내 표지와 기둥 안내문을 확인합니다.',bg1:'#667085',bg2:'#4E5968'},
+  {emoji:'🚶',title:'배정 층으로 이동',desc:'각 층 안내판을 따라 배정 강의실로 이동합니다.',bg1:'#3182F6',bg2:'#1E5FD4'},
+  {emoji:'🏛️',title:'목적지 인근 안내',desc:'이제 목적지 인근입니다. 주변 표지판을 확인하고 여유 있게 입실해 주세요.',bg1:'#03B26C',bg2:'#02995B'},
+];
+const DEFAULT_BUS_DESC = [
+  {emoji:'🚌',title:'버스 하차',desc:'MG인재개발원 앞 정류장에서 하차합니다. 하차 후 진행 방향을 확인하세요.',bg1:'#5368FF',bg2:'#4054D8'},
+  {emoji:'🚶',title:'정류장에서 도보',desc:'정류장에서 오른쪽 방향으로 약 100m 직진합니다.',bg1:'#667085',bg2:'#4E5968'},
+  {emoji:'🌉',title:'횡단보도 건너기',desc:'신호등 횡단보도를 신호를 확인한 뒤 건넙니다.',bg1:'#5B8DEF',bg2:'#3182F6'},
+  {emoji:'🏢',title:'건물 방향 진입',desc:'횡단보도를 건넌 후 왼쪽으로 이동하면 MG인재개발원 건물이 보입니다.',bg1:'#4E5968',bg2:'#3A4756'},
+  {emoji:'🚪',title:'건물 정문 입장',desc:'본관 정문(자동문)으로 입장합니다.',bg1:'#3182F6',bg2:'#1B64DA'},
+];
+
+let APP = {
+  uploadMeta:{fileName:'', uploadedAt:''},
+  learners:[],
+  courses:[],
+  responses:{connect:{}, return:{}},
+};
+let STEP_CFG = { car:{steps:DEFAULT_CAR_DESC.map(v=>({...v})), font:17}, bus:{steps:DEFAULT_BUS_DESC.map(v=>({...v})), font:17} };
+let PHOTO_CACHE = {car:Array(10).fill(null), bus:Array(10).fill(null)};
+let CUR = {screen:'home', user:null, guideType:null, step:0};
+
+function toast(msg,ms=2200){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),ms)}
+function goTo(name){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('s-'+name).classList.add('active');CUR.screen=name;if(name==='home')renderHome();if(name==='dashboard')renderDashboard();if(name==='admin')renderAdmin();if(name==='guide')renderGuide();window.scrollTo(0,0)}
+function saveAppData(){ localStorage.setItem(APP_KEY, JSON.stringify(APP)); }
+function loadAppData(){ try{ const raw=localStorage.getItem(APP_KEY); if(raw){ APP=Object.assign(APP, JSON.parse(raw)||{}); } }catch(e){} }
+function normalizeDigits(v){ return String(v??'').replace(/\D/g,'').replace(/^0+(?=\d)/,''); }
+function displayString(v){ return String(v??'').trim(); }
+function courseNormalize(v){ return String(v||'').replace(/\n/g,' ').replace(/\(.*?\)/g,' ').replace(/live/ig,' ').replace(/[^가-힣a-zA-Z0-9]/g,'').toLowerCase(); }
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function applyGuideFont(type){ const f=(STEP_CFG[type]?.font)||17; document.documentElement.style.setProperty('--g-desc', f+'px'); document.documentElement.style.setProperty('--g-title', Math.round(f*1.28)+'px'); }
+function getUserKey(learner){ return learner ? `${normalizeDigits(learner.branchCode)}|${normalizeDigits(learner.empNo)}` : ''; }
+function getCurrentCourse(){ if(!CUR.user) return null; return APP.courses.find(c=>c.courseId===CUR.user.courseId) || null; }
+function responseFor(kind){ const key=getUserKey(CUR.user); return APP.responses[kind]?.[key] || null; }
+
+function openPhotoDb(){ return new Promise((resolve,reject)=>{ const req=indexedDB.open(PHOTO_DB, PHOTO_DB_VER); req.onupgradeneeded=e=>{const db=e.target.result; if(!db.objectStoreNames.contains('photos')) db.createObjectStore('photos');}; req.onsuccess=e=>{photoDb=e.target.result; resolve();}; req.onerror=e=>reject(e.target.error); }); }
+function idbGet(key){ return new Promise((resolve,reject)=>{ const tx=photoDb.transaction('photos','readonly'); const req=tx.objectStore('photos').get(key); req.onsuccess=e=>resolve(e.target.result||null); req.onerror=e=>reject(e.target.error); }); }
+function idbPut(key, blob){ return new Promise((resolve,reject)=>{ const tx=photoDb.transaction('photos','readwrite'); const req=blob ? tx.objectStore('photos').put(blob,key) : tx.objectStore('photos').delete(key); req.onsuccess=()=>resolve(); req.onerror=e=>reject(e.target.error); }); }
+function revokeUrl(v){ try{ if(String(v||'').startsWith('blob:')) URL.revokeObjectURL(v);}catch(e){} }
+async function loadPhotos(){ for(const t of ['car','bus']) for(let i=0;i<10;i++) revokeUrl(PHOTO_CACHE[t][i]); for(const t of ['car','bus']){ for(let i=0;i<10;i++){ try{ const blob=await idbGet(`${t}_${i}`); PHOTO_CACHE[t][i]=blob?URL.createObjectURL(blob):null; }catch(e){ PHOTO_CACHE[t][i]=null; } } } }
+function dataUrlToBlob(dataUrl){ try{ const [meta,b64]=String(dataUrl).split(','); const mime=(meta.match(/data:(.*?);base64/i)||[])[1]||'image/jpeg'; const bin=atob(b64); const bytes=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i); return new Blob([bytes],{type:mime}); }catch(e){ return null; } }
+async function migrateLegacyPhotos(){ for(const type of ['car','bus']){ try{ const raw = localStorage.getItem('mg_v4_ph_'+type); if(!raw) continue; const arr = JSON.parse(raw)||[]; for(let i=0;i<10;i++){ const exists = await idbGet(`${type}_${i}`); if(exists) continue; const blob=dataUrlToBlob(arr[i]); if(blob) await idbPut(`${type}_${i}`, blob); } }catch(e){} } }
+function loadStepCfg(){ STEP_CFG={ car:{steps:DEFAULT_CAR_DESC.map(v=>({...v})), font:17}, bus:{steps:DEFAULT_BUS_DESC.map(v=>({...v})), font:17} }; try{ const raw=localStorage.getItem(OLD_LS_STEP_CFG); if(!raw) return; const obj=JSON.parse(raw); for(const type of ['car','bus']){ if(obj[type]){ STEP_CFG[type].font = Math.max(12, Math.min(24, parseInt(obj[type].font||17,10)||17)); STEP_CFG[type].steps = (Array.isArray(obj[type].steps)&&obj[type].steps.length?obj[type].steps:(type==='car'?DEFAULT_CAR_DESC:DEFAULT_BUS_DESC)).map((s,i)=>({emoji:String(s.emoji||'📍'), title:String(s.title||`${i+1}단계`), desc:String(s.desc||''), bg1:s.bg1||'#3182F6', bg2:s.bg2||'#1B64DA'})); } } }catch(e){} }
+function saveStepCfg(){ localStorage.setItem(OLD_LS_STEP_CFG, JSON.stringify(STEP_CFG)); }
+function placeholderSvg(step){ const id='g'+Math.random().toString(36).slice(2,7); return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${step.bg1}"/><stop offset="100%" stop-color="${step.bg2}"/></linearGradient></defs><rect width="400" height="300" fill="url(#${id})"/><circle cx="330" cy="58" r="88" fill="rgba(255,255,255,.06)"/><circle cx="60" cy="250" r="72" fill="rgba(255,255,255,.05)"/><text x="200" y="126" text-anchor="middle" font-size="72" font-family="Apple Color Emoji, Segoe UI Emoji">${esc(step.emoji)}</text><text x="200" y="178" text-anchor="middle" font-size="20" fill="white" font-family="Apple SD Gothic Neo,Malgun Gothic,sans-serif" font-weight="bold">${esc(step.title)}</text><text x="200" y="214" text-anchor="middle" font-size="14" fill="rgba(255,255,255,.86)" font-family="Apple SD Gothic Neo,Malgun Gothic,sans-serif">길안내 사진이 없으면 이 화면이 표시됩니다.</text></svg>`); }
+function setInputValue(id,v){ document.getElementById(id).value=v||''; }
+function renderHome(){ const note=document.getElementById('home-note'); if(APP.learners.length){ note.textContent=`현재 업로드 파일: ${APP.uploadMeta.fileName||'입교자현황'} · 학습자 ${APP.learners.length}명 · 과정 ${APP.courses.length}개`; } else { note.textContent='운영 데이터가 없으면 먼저 관리자 모드에서 입교자현황 파일을 업로드해 주세요.'; } }
+
+function getCell(sheet, addr){ return sheet[addr] || null; }
+function getCellDisplay(sheet, addr){ const c=getCell(sheet, addr); if(!c) return ''; return String(c.w ?? c.v ?? '').trim(); }
+function summaryMapFromFirstSheet(sheet){ const map={}; for(let r=6;r<=200;r++){ const name=getCellDisplay(sheet,'C'+r); const period=getCellDisplay(sheet,'D'+r); const room=getCellDisplay(sheet,'E'+r); if(!name && !period && !room){ if(r>20) break; else continue; } const cleanName=name.replace(/\n/g,' ').replace(/\(.*?\)/g,' ').trim(); const key=courseNormalize(cleanName); map[key]={ summaryName:cleanName, period, room }; } return map; }
+function parseWorkbook(workbook,fileName){ const first=workbook.Sheets[workbook.SheetNames[0]]; const summaryMap= first ? summaryMapFromFirstSheet(first) : {}; const learners=[]; const courses=[];
+  for(let s=1;s<workbook.SheetNames.length;s++){
+    const sheetName=workbook.SheetNames[s]; const sh=workbook.Sheets[sheetName]; if(!sh) continue;
+    const title = getCellDisplay(sh,'B1') || sheetName;
+    const norm = courseNormalize(title) || courseNormalize(sheetName);
+    const summary = summaryMap[norm] || Object.values(summaryMap).find(v=> courseNormalize(v.summaryName)===norm ) || null;
+    const courseId = sheetName;
+    const course = { courseId, sheetName, courseName: title, defaultCourseName:title, period: summary?.period || '', defaultPeriod: summary?.period || '', room: summary?.room || '', defaultRoom: summary?.room || '', connectEnabled:false, learnerCount:0 };
+    let count=0;
+    for(let r=4;r<=1000;r++){
+      const branch = getCellDisplay(sh,'D'+r); const emp = getCellDisplay(sh,'F'+r); const name = getCellDisplay(sh,'H'+r); const branchName = getCellDisplay(sh,'E'+r); if(!branch && !emp && !name){ if(r>20) break; else continue; }
+      if(!branch || !emp) continue;
+      learners.push({ courseId, courseName:title, sheetName, branchCode:branch, empNo:emp, learnerName:name, branchName, rawRow:r }); count++;
+    }
+    course.learnerCount=count; courses.push(course);
+  }
+  APP.uploadMeta={fileName, uploadedAt:new Date().toISOString()}; APP.learners=learners; const oldMap=Object.fromEntries(APP.courses.map(c=>[c.courseId,c])); APP.courses=courses.map(c=>{ const old=oldMap[c.courseId]; return old ? {...c, courseName:old.courseName||c.courseName, period:old.period||c.period, room:old.room||c.room, connectEnabled:!!old.connectEnabled} : c; });
+  saveAppData();
+}
+async function handleWorkbook(file){ if(!file) return; try{ const buf=await file.arrayBuffer(); const wb=XLSX.read(buf,{type:'array', cellDates:false}); parseWorkbook(wb,file.name); document.getElementById('upload-name').textContent=file.name; document.getElementById('upload-sub').textContent=`업로드 완료 · 학습자 ${APP.learners.length}명 · 과정 ${APP.courses.length}개`; renderAdmin(); renderHome(); toast('업로드를 완료했습니다.'); } catch(e){ console.error(e); toast('업로드 중 오류가 발생했습니다.'); } }
+
+function loginLearner(){ const emp=document.getElementById('login-emp').value; const branch=document.getElementById('login-branch').value; const name=document.getElementById('login-name').value.trim(); if(!APP.learners.length){ toast('먼저 관리자 모드에서 파일을 업로드해 주세요.'); return; } const nEmp=normalizeDigits(emp), nBranch=normalizeDigits(branch); const found=APP.learners.find(l=> normalizeDigits(l.empNo)===nEmp && normalizeDigits(l.branchCode)===nBranch ); if(!found){ const sameEmp=APP.learners.find(l=>normalizeDigits(l.empNo)===nEmp); if(sameEmp) toast(`사번은 일치하지만 금고코드가 다릅니다. 등록값: ${sameEmp.branchCode}`); else toast('일치하는 입교 정보가 없습니다.'); return; } CUR.user={...found, inputName:name}; renderDashboard(); goTo('dashboard'); }
+function logoutLearner(){ CUR.user=null; setInputValue('login-emp',''); setInputValue('login-branch',''); setInputValue('login-name',''); goTo('home'); }
+function renderDashboard(){ if(!CUR.user) return; const course=getCurrentCourse(); const li=document.getElementById('learner-info'); const displayName = CUR.user.learnerName || CUR.user.inputName || '-'; li.innerHTML=`<div class="kv-item"><div class="kv-label">성명</div><div class="kv-value">${esc(displayName)}</div></div><div class="kv-item"><div class="kv-label">과정명</div><div class="kv-value">${esc(course?.courseName||CUR.user.courseName||'-')}</div></div><div class="kv-item"><div class="kv-label">강의실</div><div class="kv-value room">${esc(course?.room||'미배정')}</div></div>`;
+  const c=responseFor('connect'); const r=responseFor('return');
+  const cCard=document.getElementById('connect-status-card'); const rCard=document.getElementById('return-status-card');
+  cCard.className='status-chip '+(c?.selected?'status-on':'status-off'); cCard.innerHTML=`<div class="t">커넥트 아우어</div><div class="v">${c?.selected?'신청 완료':'미신청'}${c?.updatedAt?`<br><span style="font-size:12px;color:var(--text-3);font-weight:800">${fmtDate(c.updatedAt)}</span>`:''}</div>`;
+  rCard.className='status-chip '+(r?.selected?'status-on':'status-off'); rCard.innerHTML=`<div class="t">귀가 이동 선택</div><div class="v">${r?.selected?'선택 완료':'미선택'}${r?.updatedAt?`<br><span style="font-size:12px;color:var(--text-3);font-weight:800">${fmtDate(r.updatedAt)}</span>`:''}</div>`;
+}
+function fmtDate(v){ try{ const d=new Date(v); if(Number.isNaN(+d)) return ''; return `${d.getMonth()+1}.${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }catch(e){ return ''; } }
+
+function buildGuideSteps(type){ const desc=STEP_CFG[type]?.steps || (type==='car'?DEFAULT_CAR_DESC:DEFAULT_BUS_DESC); const count=Math.max(desc.length, PHOTO_CACHE[type].filter(Boolean).length,1); const out=[]; for(let i=0;i<count;i++){ const base=desc[i] || desc[desc.length-1] || {emoji:'📍',title:`${i+1}단계`,desc:'이동 안내를 확인해 주세요.',bg1:'#3182F6',bg2:'#1B64DA'}; out.push({...base, photoUrl:PHOTO_CACHE[type][i]||null}); } return out; }
+function openTransport(type){ CUR.guideType=type; CUR.step=0; applyGuideFont(type); goTo('guide'); }
+function closeGuide(){ goTo('dashboard'); }
+function renderGuide(){ const type=CUR.guideType||'car'; const steps=buildGuideSteps(type); const step=steps[CUR.step]; const course=getCurrentCourse(); document.getElementById('guide-hdr').textContent=type==='car'?'자차 길안내':'대중교통 길안내'; document.getElementById('guide-top').innerHTML=`<div class="guide-destination"><span>목적지</span>${esc(course?.room||'미배정')}</div><div class="muted">강의실명이 길어져도 두 줄 이상 자연스럽게 보이도록 표시됩니다.</div>`; document.getElementById('guide-body').innerHTML=`<div class="guide-img-wrap"><img src="${step.photoUrl||placeholderSvg(step)}" alt="길안내"><div class="sbadge">STEP ${CUR.step+1} / ${steps.length}</div><div class="tbadge">${type==='car'?'자차':'대중교통'}</div></div><div class="dots">${steps.map((_,i)=>`<div class="dot${i===CUR.step?' on':''}"></div>`).join('')}</div><div class="guide-card"><h3>${esc(step.emoji)} ${esc(step.title)}</h3><p>${esc(step.desc).replace(/\n/g,'<br>')}</p></div>`; const prevLabel = CUR.step===0 ? '대시보드' : '이전'; const last=CUR.step===steps.length-1; document.getElementById('guide-nav').innerHTML=`<button class="btn btn-sec" onclick="${CUR.step===0?'closeGuide()':'guidePrev()'}">← ${prevLabel}</button><button class="btn ${last?'btn-ok':'btn-pri'}" onclick="${last?'finishGuide()':'guideNext()'}">${last?'안내 마치기':'다음 →'}</button>`; }
+function guidePrev(){ CUR.step=Math.max(0,CUR.step-1); renderGuide(); }
+function guideNext(){ const steps=buildGuideSteps(CUR.guideType||'car'); CUR.step=Math.min(steps.length-1,CUR.step+1); renderGuide(); }
+function finishGuide(){ const course=getCurrentCourse(); const room=course?.room||'강의실'; document.getElementById('guide-top').innerHTML=''; document.getElementById('guide-body').innerHTML=`<div class="arrbox"><div class="icon">안내 완료</div><h2>${esc(room)} 주변까지 안내해 드렸어요</h2><p>이제 가까운 위치입니다. 주변 표지판을 한 번 더 확인하시고, 여유 있게 입실해 주세요.</p></div>`; document.getElementById('guide-nav').innerHTML=`<button class="btn btn-sec" onclick="goTo('dashboard')">대시보드로 돌아가기</button><button class="btn btn-pri" onclick="${course?.connectEnabled?'openConnectModal(true)':'goTo(\'dashboard\')'}">${course?.connectEnabled?'커넥트 아우어 보기':'마무리'}</button>`; }
+
+function closeModal(e){ if(e && e.target.id!=='modal-overlay') return; document.getElementById('modal-overlay').classList.remove('show'); }
+function showModal(html){ const overlay=document.getElementById('modal-overlay'); const card=document.getElementById('modal-card'); card.innerHTML=`<div class="modal-handle"></div>${html}`; overlay.classList.add('show'); }
+function openConnectModal(fromGuide){ if(!CUR.user){ toast('먼저 로그인해 주세요.'); return; } const course=getCurrentCourse(); if(!course?.connectEnabled){ toast('이 과정은 커넥트 아우어가 설정되어 있지 않습니다.'); return; } const resp=responseFor('connect'); showModal(`<div class="modal-title">커넥트 아우어</div><div class="modal-text">커넥트 아우어는 해당 과정 내의 교육생들과 입교일 저녁 19시부터 <strong>${esc(course.room||'해당 강의실')}</strong>에서 서로 소통, 커뮤니케이션하는 시간입니다.<br><br>현재 상태: <strong>${resp?.selected?'신청 완료':'미신청'}</strong>${resp?.updatedAt?` · ${fmtDate(resp.updatedAt)}`:''}</div><div class="grid2"><button class="btn btn-ok" onclick="setResponse('connect', true, ${fromGuide?1:0})">신청</button><button class="btn btn-sec" onclick="setResponse('connect', false, ${fromGuide?1:0})">철회</button></div>`); }
+function openReturnModal(){ if(!CUR.user){ toast('먼저 로그인해 주세요.'); return; } const resp=responseFor('return'); showModal(`<div class="modal-title">귀가 이동 선택</div><div class="modal-text">교육 종료 후 대중교통 이용 여부를 선택하거나 취소할 수 있습니다.<br><br><strong>천안버스터미널 - 천안역 - 천안아산KTX역</strong>을 정차합니다.<br><br>현재 상태: <strong>${resp?.selected?'선택 완료':'미선택'}</strong>${resp?.updatedAt?` · ${fmtDate(resp.updatedAt)}`:''}</div><div class="grid2"><button class="btn btn-ok" onclick="setResponse('return', true, 0)">선택</button><button class="btn btn-sec" onclick="setResponse('return', false, 0)">취소</button></div>`); }
+function setResponse(kind, selected, fromGuide){ const key=getUserKey(CUR.user); if(!APP.responses[kind]) APP.responses[kind]={}; APP.responses[kind][key]={ selected:!!selected, updatedAt:new Date().toISOString(), learnerName:CUR.user.learnerName, branchCode:CUR.user.branchCode, empNo:CUR.user.empNo, courseId:CUR.user.courseId, courseName:getCurrentCourse()?.courseName||CUR.user.courseName, branchName:CUR.user.branchName||'' }; saveAppData(); closeModal(); renderDashboard(); toast(kind==='connect' ? (selected?'커넥트 아우어를 신청했습니다.':'커넥트 아우어 신청을 철회했습니다.') : (selected?'귀가 이동을 선택했습니다.':'귀가 이동 선택을 취소했습니다.')); if(fromGuide) goTo('dashboard'); }
+
+function renderAdmin(){ const stats=document.getElementById('adm-stats'); stats.innerHTML=`<div class="stat"><div class="n">${APP.courses.length}</div><div class="l">과정 수</div></div><div class="stat"><div class="n">${APP.learners.length}</div><div class="l">학습자 수</div></div><div class="stat"><div class="n">${APP.courses.filter(c=>c.room).length}</div><div class="l">강의실 설정</div></div>`; document.getElementById('course-sec').style.display = APP.courses.length ? 'block':'none'; document.getElementById('course-tbody').innerHTML = APP.courses.map((c,idx)=>`<tr><td><input type="text" value="${esc(c.courseName)}" oninput="APP.courses[${idx}].courseName=this.value;saveAppData()"></td><td><input type="text" value="${esc(c.period||'')}" oninput="APP.courses[${idx}].period=this.value;saveAppData()"></td><td>${c.learnerCount}</td><td><input type="text" value="${esc(c.room||'')}" oninput="APP.courses[${idx}].room=this.value;saveAppData()"></td><td style="text-align:center"><input type="checkbox" ${c.connectEnabled?'checked':''} onchange="APP.courses[${idx}].connectEnabled=this.checked;saveAppData()"></td><td><button class="small-btn" onclick="restoreCourse(${idx})">복원</button></td></tr>`).join(''); renderPhotoGrid('car'); renderPhotoGrid('bus'); renderStepEditor('car'); renderStepEditor('bus'); }
+function restoreCourse(idx){ const c=APP.courses[idx]; if(!c) return; c.courseName=c.defaultCourseName||c.courseName; c.period=c.defaultPeriod||''; c.room=c.defaultRoom||''; saveAppData(); renderAdmin(); toast('기본값으로 복원했습니다.'); }
+function showRules(){ showModal(`<div class="modal-title">업로드 규칙</div><div class="modal-text">1번째 시트는 종합내역으로 참고용입니다.<br>2번째 시트부터는 과정별 명단 시트로 읽습니다.<br><br>과정명은 각 시트의 <strong>B1</strong>을 우선 사용하고, 첫 시트의 과정표에서 입교기간과 강의실을 자동 세팅합니다.<br><br>학습자 로그인 식별은 <strong>금고코드 + 사원번호</strong>입니다. 성명은 참고값입니다.</div><button class="btn btn-pri" style="width:100%" onclick="closeModal()">확인</button>`); }
+
+function renderPhotoGrid(type){ const grid=document.getElementById(type+'-photo-grid'); grid.innerHTML=''; PHOTO_CACHE[type].forEach((src,idx)=>{ const div=document.createElement('div'); div.className='photo-slot'; if(src){ div.innerHTML=`<img src="${src}" alt="사진"><button class="del" onclick="deletePhoto('${type}',${idx})">✕</button>`; } else { div.innerHTML=`<div class="slot-num"><span>📷</span>${idx+1}번</div>`; } grid.appendChild(div); }); }
+function compressToBlob(file,maxW=1280,quality=.86){ return new Promise((resolve,reject)=>{ const r=new FileReader(); r.onload=e=>{ const img=new Image(); img.onload=()=>{ const scale=Math.min(1,maxW/Math.max(img.width,img.height)); const w=Math.round(img.width*scale), h=Math.round(img.height*scale); const c=document.createElement('canvas'); c.width=w;c.height=h; c.getContext('2d').drawImage(img,0,0,w,h); c.toBlob(b=>b?resolve(b):reject(new Error('blob fail')),'image/jpeg',quality); }; img.onerror=reject; img.src=e.target.result; }; r.onerror=reject; r.readAsDataURL(file); }); }
+async function handlePhotos(type, files){ if(!files||!files.length) return; const empty=[]; for(let i=0;i<10;i++) if(!PHOTO_CACHE[type][i]) empty.push(i); if(!empty.length){ toast('최대 10장까지 가능합니다.'); return; } for(let n=0;n<Math.min(files.length, empty.length); n++){ const idx=empty[n]; const blob=await compressToBlob(files[n]); await idbPut(`${type}_${idx}`, blob); } await loadPhotos(); renderPhotoGrid(type); toast('사진을 저장했습니다.'); document.getElementById(type+'-photo-inp').value=''; }
+async function deletePhoto(type, idx){ if(!confirm('이 사진을 삭제할까요?')) return; await idbPut(`${type}_${idx}`, null); await loadPhotos(); renderPhotoGrid(type); toast('사진을 삭제했습니다.'); }
+
+function renderStepEditor(type){ const wrap=document.getElementById(type+'-step-editor'); const steps=STEP_CFG[type].steps; wrap.innerHTML=''; steps.forEach((s,i)=>{ const div=document.createElement('div'); div.className='step-card'; div.innerHTML=`<div class="step-row"><div class="step-num">STEP ${i+1}</div><input class="step-emo" value="${esc(s.emoji)}" data-type="${type}" data-idx="${i}" data-f="emoji"></div><input class="step-title" value="${esc(s.title)}" data-type="${type}" data-idx="${i}" data-f="title"><textarea class="step-desc" data-type="${type}" data-idx="${i}" data-f="desc">${esc(s.desc)}</textarea>`; wrap.appendChild(div); }); wrap.querySelectorAll('input,textarea').forEach(el=>{ el.oninput=()=>{ const t=el.dataset.type, i=+el.dataset.idx, f=el.dataset.f; STEP_CFG[t].steps[i][f]=el.value; }; }); }
+function saveSteps(type){ saveStepCfg(); toast((type==='car'?'자차':'대중교통')+' STEP을 저장했습니다.'); }
+function resetSteps(type){ if(!confirm('기본 STEP으로 복원할까요?')) return; STEP_CFG[type].steps=(type==='car'?DEFAULT_CAR_DESC:DEFAULT_BUS_DESC).map(v=>({...v})); saveStepCfg(); renderStepEditor(type); toast('기본 STEP으로 복원했습니다.'); }
+
+function downloadResponses(kind){ if(!APP.courses.length){ toast('먼저 파일을 업로드해 주세요.'); return; } const rows=APP.learners.map(l=>{ const key=`${normalizeDigits(l.branchCode)}|${normalizeDigits(l.empNo)}`; const course=APP.courses.find(c=>c.courseId===l.courseId) || {}; const resp=APP.responses[kind]?.[key] || null; return { 과정명: course.courseName||l.courseName, 입교기간: course.period||'', 강의실: course.room||'', 금고코드:l.branchCode, 금고명:l.branchName, 성명:l.learnerName, 사번:l.empNo, [kind==='connect'?'커넥트아우어여부':'귀가이동선택']: resp?.selected?'신청':'미신청', 응답시각: resp?.updatedAt?fmtDate(resp.updatedAt):'' }; }); const ws=XLSX.utils.json_to_sheet(rows); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, kind==='connect'?'커넥트아우어':'귀가이동'); XLSX.writeFile(wb, `${kind==='connect'?'커넥트아우어':'귀가이동'}_현황.xlsx`); }
+
+async function resetAll(){ if(!confirm('학습자 데이터와 응답을 모두 초기화할까요?\n사진과 STEP 설정은 유지됩니다.')) return; APP={uploadMeta:{fileName:'',uploadedAt:''}, learners:[], courses:[], responses:{connect:{}, return:{}}}; saveAppData(); CUR.user=null; renderAdmin(); renderHome(); toast('운영 데이터를 초기화했습니다.'); }
+
+(async function init(){ loadAppData(); loadStepCfg(); try{ await openPhotoDb(); await migrateLegacyPhotos(); await loadPhotos(); }catch(e){ console.error(e); } renderHome(); renderAdmin(); applyGuideFont('car'); })();
+</script>
+</body>
+</html>
